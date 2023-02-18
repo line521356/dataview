@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>view</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link type="text/css" rel="stylesheet" href="/static/main.css">
+</head>
+<style>
+	.lil-gui .gui-stats {
+		line-height: var(--widget-height);
+		padding: var(--padding);
+	}
+
+</style>
+<body>
+<!--使用python计算lable 将结果放置在models/json/data.js下 使用数据 绘图-->
+	<div id="container">
+
+	</div>
+
+	<!-- Import maps polyfill -->
+	<!-- Remove this when import maps will be widely supported -->
+
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "/static/three.module.js",
+				"three/addons/": "/static/jsm/"
+			}
+		}
+	</script>
+<!--	<script type="application/javascript" src="/static/data.js"></script>-->
+	<script type="application/javascript" src="/static/three.min.js"></script>
+	<script type="module">
+		import * as THREE from 'three';
+
+		import Stats from '/static/stats.module.js';
+		import { GUI } from '/static/lil-gui.module.min.js';
+		import { OrbitControls } from '/static/OrbitControls.js';
+
+		let container, stats, gui, guiStatsEl;
+		let camera, controls, scene, renderer, material;
+		let my_data = {{data.my_data_background|tojson}};
+		let dict_list = {{data.dict_list|tojson}};
+
+
+		// gui
+
+		const Method = {
+			X: 'X',
+			Y: 'Y',
+			Z: 'Z'
+		};
+		const api = {
+			method: Method.X,
+		};
+
+
+		//
+
+		init();
+		initMesh();
+		animate();
+
+		//
+
+		function clean() {
+
+			const meshes = [];
+
+			scene.traverse( function ( object ) {
+
+				if ( object.isMesh ) meshes.push( object );
+
+			} );
+
+			for ( let i = 0; i < meshes.length; i ++ ) {
+
+				const mesh = meshes[ i ];
+				mesh.material.dispose();
+				mesh.geometry.dispose();
+
+				scene.remove( mesh );
+
+			}
+
+		}
+
+
+		function make_min(data){
+			var k = 0.000977523;
+			return -20+k*(data - -3212.75);
+		}
+
+
+
+		function randomizeMatrix(matrix,x,y,z){
+			const position = new THREE.Vector3();
+			const quaternion = new THREE.Quaternion();
+			const scale = new THREE.Vector3();
+			position.x = make_min(x);
+			position.y = make_min(y);
+			position.z = make_min(z);
+
+			scale.x = scale.y = scale.z = 0.01
+			matrix.compose( position, quaternion, scale );
+		}
+
+
+		function initMesh() {
+
+			clean();
+			const geometry = new THREE.SphereGeometry( 1, 10, 10 );
+			geometry.computeVertexNormals();
+			makeInstanced( geometry );
+
+		}
+
+		function makeInstanced( geometry ) {
+
+			const matrix = new THREE.Matrix4();
+			material = new THREE.MeshBasicMaterial();
+			const mesh = new THREE.InstancedMesh( geometry, material, my_data.length );
+
+			for ( let i = 0; i < my_data.length; i ++ ) {
+
+				switch (api.method){
+					case "X":{
+						randomizeMatrix( matrix ,my_data[i].z,my_data[i].y,my_data[i].x);
+						break;
+					}
+					case "Y":{
+						randomizeMatrix( matrix ,my_data[i].x,my_data[i].z,my_data[i].y);
+						break;
+					}
+					case "Z":{
+						randomizeMatrix( matrix ,my_data[i].x,my_data[i].y,my_data[i].z);
+						break;
+					}
+				}
+
+				mesh.setColorAt(i, new THREE.Color( my_data[i].label ));
+
+				mesh.setMatrixAt( i, matrix );
+
+			}
+
+			scene.add( mesh );
+			var axes = new THREE.AxesHelper(40);
+			scene.add(axes);
+
+
+		}
+
+
+		function init() {
+
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+
+			// camera
+
+			camera = new THREE.PerspectiveCamera( 70, width / height, 1, 100 );
+			camera.position.z = 30;
+
+			// renderer
+
+			renderer = new THREE.WebGLRenderer( { antialias: true } );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( width, height );
+
+			container = document.getElementById( 'container' );
+			container.appendChild( renderer.domElement );
+
+			// scene
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xffffff );
+
+			// controls
+
+			controls = new OrbitControls( camera, renderer.domElement );
+			// controls.autoRotate = true;
+
+			// stats
+
+
+			stats = new Stats();
+			container.appendChild( stats.dom );
+
+			gui = new GUI();
+			gui.add( api,'method', Method ).onChange( initMesh );
+			// listeners
+			const perfFolder = gui.addFolder( 'color' );
+			guiStatsEl = document.createElement( 'div' );
+			guiStatsEl.classList.add( 'gui-stats' );
+
+			perfFolder.$children.appendChild( guiStatsEl );
+			perfFolder.open();
+
+			window.addEventListener( 'resize', onWindowResize );
+
+			Object.assign( window, { scene } );
+
+		}
+
+		//
+
+		function onWindowResize() {
+
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+
+			camera.aspect = width / height;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize( width, height );
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			controls.update();
+			stats.update();
+
+			render();
+
+		}
+
+		function render() {
+
+			renderer.render( scene, camera );
+
+		}
+
+
+	</script>
+
+</body>
+</html>
