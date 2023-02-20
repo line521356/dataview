@@ -2,6 +2,7 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 
 
+# 根据数据中的坐标计算当前坐标的点的颜色
 def get_labels(data):
     data_np = np.array(data)
     labels = DBSCAN(eps=100, min_samples=20).fit(data_np).labels_
@@ -9,6 +10,7 @@ def get_labels(data):
     step = (int)(0xFFFF00 / label_size)
     colors = []
     for label in labels:
+        # label == -1时，该点坐标视为噪音
         if label == -1:
             colors.append("#FFFFFF")
         else:
@@ -20,11 +22,13 @@ def get_labels(data):
     return result_data
 
 
+# 将16进制数转为#开头的6位16进制颜色
 def hex2color(hex_str: str):
     hex_str = hex_str.replace("0x", "")
     return "#" + hex_str.rjust(6, "0")
 
 
+# 统计相同颜色的坐标的最大值和最小值
 def count_xyz(my_data_background: list(dict())):
     count_dict = {}
     for line in my_data_background:
@@ -62,6 +66,7 @@ def count_xyz(my_data_background: list(dict())):
     return count_dict
 
 
+# 二维数组，取中其中一列
 def get_colum_by_index(data, index):
     data_np = np.array(data)
     return data_np[:, index].tolist()

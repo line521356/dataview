@@ -40,6 +40,7 @@
 
 		let container, stats, gui, guiStatsEl;
 		let camera, controls, scene, renderer, material;
+		//模板引擎数据渲染
 		let my_data = {{data.my_data_background|tojson}};
 		let dict_list = {{data.dict_list|tojson}};
 
@@ -87,6 +88,7 @@
 		}
 
 
+		//TODO：这里还需要优化，斜率与-3212.75 并不是通过计算得来，最好是通过python计算返回给前端
 		function zoom_coordinate(data){
 			var k = 0.000977523;
 			return -20+k*(data - -3212.75);

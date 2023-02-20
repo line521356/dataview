@@ -9,14 +9,15 @@ templates = Jinja2Templates(directory='templates')
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
+# 首页上传文件
 @app.get("/")
 async def root(request: Request):
     return templates.TemplateResponse(name="upload.html", context={'request': request})
 
 
+# 上传文件接口，返回3d渲染页面
 @app.post("/upload")
 async def upload(request: Request, my_file: UploadFile = File(...)):
-    data = {}
     res = await my_file.read()
     res = res.decode()
     lines = res.split('\n')
