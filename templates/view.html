@@ -30,7 +30,6 @@
 			}
 		}
 	</script>
-<!--	<script type="application/javascript" src="/static/data.js"></script>-->
 	<script type="application/javascript" src="/static/three.min.js"></script>
 	<script type="module">
 		import * as THREE from 'three';
@@ -88,7 +87,7 @@
 		}
 
 
-		function make_min(data){
+		function zoom_coordinate(data){
 			var k = 0.000977523;
 			return -20+k*(data - -3212.75);
 		}
@@ -99,9 +98,9 @@
 			const position = new THREE.Vector3();
 			const quaternion = new THREE.Quaternion();
 			const scale = new THREE.Vector3();
-			position.x = make_min(x);
-			position.y = make_min(y);
-			position.z = make_min(z);
+			position.x = zoom_coordinate(x);
+			position.y = zoom_coordinate(y);
+			position.z = zoom_coordinate(z);
 
 			scale.x = scale.y = scale.z = 0.01
 			matrix.compose( position, quaternion, scale );

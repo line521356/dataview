@@ -26,7 +26,6 @@ def hex2color(hex_str: str):
 
 
 def count_xyz(my_data_background: list(dict())):
-    dict_list = []
     count_dict = {}
     for line in my_data_background:
         label = count_dict.get(line['label'])
@@ -45,7 +44,7 @@ def count_xyz(my_data_background: list(dict())):
                     "min": line['z']
                 }
             }
-            dict_list.append({line['label']: label})
+            count_dict[line['label']] = label
         else:
             if label['x']['max'] < line['x']:
                 label['x']['max'] = line['x']
@@ -59,8 +58,8 @@ def count_xyz(my_data_background: list(dict())):
                 label['z']['max'] = line['z']
             if label['z']['min'] > line['z']:
                 label['z']['min'] = line['z']
-            dict_list.append({line['label']: label})
-    return dict_list
+            count_dict[line['label']] = label
+    return count_dict
 
 
 def get_colum_by_index(data, index):
