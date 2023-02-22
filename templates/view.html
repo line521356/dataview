@@ -14,9 +14,7 @@
 
 </style>
 <body>
-<!--使用python计算lable 将结果放置在models/json/data.js下 使用数据 绘图-->
 	<div id="container">
-
 	</div>
 
 	<!-- Import maps polyfill -->
@@ -43,6 +41,10 @@
 		//模板引擎数据渲染
 		let my_data = {{data.my_data_background|tojson}};
 		let dict_list = {{data.dict_list|tojson}};
+		let mesh;
+		const raycaster = new THREE.Raycaster();
+		const mouse = new THREE.Vector2( 1, 1 );
+		const color = new THREE.Color();
 
 
 		// gui
@@ -56,6 +58,19 @@
 			method: Method.X,
 		};
 
+		function onMouseClick( event ) {
+			event.preventDefault();
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+			let hex_color = '#' + color.getHexString();
+			let coordinate = dict_list[hex_color];
+			guiStatsEl.innerHTML = [
+				'<i><div style="width:20px; height:20px;background-color:'+ hex_color +' "></div> <b>'+hex_color+'</b> </i>',
+				'<i><b>X</b></i>: ' + coordinate['x']['min'] + ' -> ' + coordinate['x']['max'],
+				'<i><b>Y</b></i>: '+ coordinate['y']['min'] + ' -> ' + coordinate['y']['max'],
+				'<i><b>Z</b></i>: ' + coordinate['z']['min'] + ' -> ' + coordinate['z']['max'],
+			].join( '<br/>' );
+		}
 
 		//
 
@@ -122,7 +137,7 @@
 
 			const matrix = new THREE.Matrix4();
 			material = new THREE.MeshBasicMaterial();
-			const mesh = new THREE.InstancedMesh( geometry, material, my_data.length );
+			mesh = new THREE.InstancedMesh( geometry, material, my_data.length );
 
 			for ( let i = 0; i < my_data.length; i ++ ) {
 
@@ -193,16 +208,19 @@
 			gui = new GUI();
 			gui.add( api,'method', Method ).onChange( initMesh );
 			// listeners
-			const perfFolder = gui.addFolder( 'color' );
+			const perfFolder = gui.addFolder( 'Performance' );
+
 			guiStatsEl = document.createElement( 'div' );
 			guiStatsEl.classList.add( 'gui-stats' );
-
 			perfFolder.$children.appendChild( guiStatsEl );
 			perfFolder.open();
+
+
 
 			window.addEventListener( 'resize', onWindowResize );
 
 			Object.assign( window, { scene } );
+			document.addEventListener( 'click', onMouseClick );
 
 		}
 
@@ -226,7 +244,14 @@
 
 			controls.update();
 			stats.update();
+			raycaster.setFromCamera( mouse, camera );
 
+				const intersection = raycaster.intersectObject( mesh );
+
+				if ( intersection.length > 0 ) {
+					const instanceId = intersection[ 0 ].instanceId;
+					mesh.getColorAt( instanceId, color );
+				}
 			render();
 
 		}
