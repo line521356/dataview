@@ -7,14 +7,14 @@ def get_labels(data):
     data_np = np.array(data)
     labels = DBSCAN(eps=100, min_samples=20).fit(data_np).labels_
     label_size = len(set(labels))
-    step = (int)(0xFFFF00 / label_size)
+    step_size = int(0xFFFF00 / label_size)
     colors = []
     for label in labels:
         # label == -1时，该点坐标视为噪音
         if label == -1:
             colors.append("#FFFFFF")
         else:
-            colors.append(hex2color((hex)((step * (int)(label)))))
+            colors.append(hex2color(hex((step_size * int(label)))))
     result_data = []
     for index in range(len(labels)):
         line = [data[index][0], data[index][1], data[index][2], colors[index]]
