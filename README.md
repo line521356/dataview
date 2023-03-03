@@ -451,5 +451,5 @@ FROM student score where score<60 GROUP BY student.id;
 9. 查询学生名，课程名，对应成绩导出csv，使用python统计每个学生的科目平均分
 ```sql
 mysql -hxxx -uxx -pxx
-SELECT student.name, course.name from student score into outfile 'stu_ave_score.csv'
+SELECT student.name, course.name from student score into outfile 'stu_score.csv'
 ```
