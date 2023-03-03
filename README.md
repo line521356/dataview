@@ -391,11 +391,65 @@ values  (1, '操作系统原理', 1),
 ```
 # 作业要求
 1. 查询每个老师所带的课
+```sql
+SELECT 
+    teacher.id
+    teacher.name
+    course.teachder_id
+    course.name
+FROM teacher, course;
+```
 2. 给student score表插入一行数据
+```sql
+INSERT INTO student score (20230304, 1, 1) VALUES (100,100,100)
+```
 3. 查询每门课的最高分（max()）
+```sql
+SELECT 
+    course.id
+    course.name
+    MAX(score);
+FROM student score GROUP BY course.id;
+```
 4. 查询每门课的平均分
+```sql
+SELECT 
+    course.id
+    course.name
+    AVG(score);
+FROM student score GROUP BY course.id ;
+```
 5. 查询所有学生的每门课的平均分 
+```sql
+
+```
 6. 查询各科前五名（多条sql查询）
+```sql
+SELECT 
+    student.id
+    student.name
+    course.name
+FROM student score ORDER BY score GROUP BY course.id limit 5；
+```
 7. 查询《线性代数》大于60分的学生
+```sql
+SELECT 
+    student.id
+    student.name
+    
+FROM student score where score>60 and course.name='线性代数'；
+```
 8. 查询科目平均分小于60分的学生
+```sql
+SELECT 
+    student.id
+    student.name
+    AVG(score);   
+FROM student score where score<60 GROUP BY student.id;
+```
+
 9. 查询学生名，课程名，对应成绩导出csv，使用python统计每个学生的科目平均分
+```sql
+mysql -hxxx -uxx -pxx
+SELECT student.name, course.name from student score into outfile 'stu_ave_score.csv'
+```
