@@ -393,7 +393,7 @@ values  (1, '操作系统原理', 1),
 1. 查询每个老师所带的课
 ```sql
 SELECT teacher.name, course.name, teacher.id, teacher_id
-FROM teacher, course;
+FROM teacher, course where course.teacher_id = teacher.id
 ```
 2. 给student score表插入一行数据
 ```sql
@@ -401,39 +401,48 @@ insert into score (stu_id, course_id, num) VALUES (35,1,100);
 ```
 3. 查询每门课的最高分（max()）
 ```sql
-SELECT course_id,MAX(num)
-FROM score GROUP BY course_id;
+SELECT course_id,c.name,MAX(num)
+FROM score s,course c where  s.course_id = c.id GROUP BY course_id;
 ```
 4. 查询每门课的平均分
 ```sql
-SELECT course_id, AVG(num)
-FROM score GROUP BY course_id;
+SELECT c.id,c.name, AVG(num)
+FROM score s,course c where s.course_id=c.id GROUP BY c.id;
 ```
 5. 查询所有学生的每门课的平均分 
 ```sql
-SELECT course_id, AVG(num)
-FROM score GROUP BY course_id;
+select st.id,st.name,avg(sc.num)
+from student st,score sc,course c
+where
+    st.id = sc.stu_id
+and sc .course_id = c.id
+group by st.id
+
 ```
 6. 查询各科前五名（多条sql查询）
 ```sql
-select a.id, a.stu_id, a.course_id, a.num from score a
+select a.id, st.name, c.name, a.num from score a,course c,student st
 where exists
     (select count(*) from score where course_id = a.course_id and num>a.num having count(*)<5)
+and a.stu_id = st.id
+and a.course_id = c.id
 order by a.course_id, num desc;
+
 ```
 7. 查询《线性代数》大于60分的学生
 ```sql
-SSELECT 
-    stu_id, course_id, num
-From score
-inner join course c on score.course_id = c.id
-where name='线性代数' and num>60;
+select st.name,a.num from score a,course c,student st
+where  a.stu_id = st.id
+and a.course_id = c.id
+and a.num > 60
+and c.name = '线性代数'
 ```
 8. 查询科目平均分小于60分的学生
 ```sql
 SELECT
-    stu_id
-FROM score
+    st.name,avg(num)
+FROM score s,student st
+where s.stu_id=st.id
 GROUP BY stu_id
 HAVING avg(num)>60;
 ```
@@ -443,3 +452,7 @@ HAVING avg(num)>60;
 mysql -hxxx -uxx -pxx
 SELECT stu_id, course_id, num from score into outfile 'stu_score.csv'
 ```
+
+leetcode 
+ 数据库入门四道题
+ 数据结构入门两道题
