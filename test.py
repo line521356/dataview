@@ -13,7 +13,10 @@ for index, item in enumerate(l):
 ## 链表 链型的 内存中排列未必是挨着的
 ## 单向链表
 ## 双向链表
-
+## 栈
+## 队列
+# 散列表 hash
+# ssl 私钥 公钥 内存快照
 class Node:
     def __init__(self,data,next_pointer=None):
         self.data = data
